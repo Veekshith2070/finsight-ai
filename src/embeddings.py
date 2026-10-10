@@ -32,7 +32,7 @@ def generate_embedding(
         logger.error(f"Failed to generate embedding: {e}")
         raise e
 
-def embed_chunks(chunks: list[dict], model_name: str = "text-embedding-004") -> list[dict]:
+def embed_chunks(chunks: list[dict], model_name: str = "gemini-embedding-001") -> list[dict]:
     """
     Generates and attaches embedding vectors to each chunk dictionary.
     """
@@ -43,7 +43,7 @@ def embed_chunks(chunks: list[dict], model_name: str = "text-embedding-004") -> 
         vector = generate_embedding(ch["text"], model_name=model_name)
 
         embedded_chunk = {
-            "chunk_id": ch["cchunk_id"],
+            "chunk_id": ch["chunk_id"],
             "page_number": ch["page_number"],
             "text": ch["text"],
             "embedding": vector,
