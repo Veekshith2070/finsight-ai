@@ -10,7 +10,7 @@ def get_gemini_client() -> genai.Client:
 def generate_financial_response(
         prompt: str,
         system_instruction: str = "You are FinSight AI, a precise financial analyst assistant. Keep answers factual, concise, and focused on finanacial principles.",
-        model_name: str = "gemini-2.5-flash",
+        model_name: str = "gemini-3.5-flash",
         temperature: float = 0.0
 ) -> str:
     """
