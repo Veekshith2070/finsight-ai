@@ -84,6 +84,37 @@ def query_vector_store(
 
     return formatted_results
 
+def ingest_pdf_document(
+        pdf_path: str | Path,
+        collection_name: str ="finsight_financial_docs"
+) -> dict:
+    """
+    End-to-end ingestion pipeline:
+    Extracts text -> Cleans accounting formatting -> Chunks by page ->
+    Generates embeddings -> Upserts to ChromaDB with collision-safe IDs.
+    """
+    path = Path(pdf_path)
+    logger.info(f"Starting complete ingestion pipeline for: {path.name}")
+
+    raw_pages = extracted_text_from_pdf(path)
+    cleaned_pages = clean_extracted_pages(raw_pages)
+    chunks = chunk_document_pages(cleaned_pages, chunks_size=500, chunk_overlap=100)
+
+    # Prevent ID collisions across different documents
+    doc_stem = path.stem
+    for ch in chunks:
+        ch["chunk_id"] = f"{doc_stem}_chunk_{ch['chunk_id']}"
+
+    embedded_chunks = embed_chunks(chunks)
+    index_document_chunks(embedded_chunks, collection_name=collection_name)
+
+    return {
+        "filename": path.name,
+        "total_pages": len(raw_pages),
+        "total_chunks": len(chunks),
+        "status": "successfully_indexed"
+    }
+
 if __name__ == "__main__":
     collection = get_or_create_collection()
 
