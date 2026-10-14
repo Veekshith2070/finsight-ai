@@ -41,7 +41,7 @@ ALL_AGENT_TOOLS = [
 
 def run_financial_agent(
         user_prompt: str,
-        model_name: str = "gemini-3.5-flash"
+        model_name: str = "gemini-2.5-flash"
 ) -> str:
     """
     Executes the autonomous agent loop using Gemini 3.5 Flash.
