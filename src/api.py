@@ -5,7 +5,7 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, status, UploadFile, File, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 
@@ -40,8 +40,7 @@ class DocumentItem(BaseModel):
     file_size_bytes: Optional[int] = None
     uploaded_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AuditLogItem(BaseModel):
     id: int
@@ -52,8 +51,7 @@ class AuditLogItem(BaseModel):
     execution_time_ms: float
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DocumentUploadResponse(BaseModel):
     filename: str

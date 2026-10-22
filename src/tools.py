@@ -47,7 +47,7 @@ def calculate_financial_margin(numerator: float, denominator: float, margin_name
         "formatted": f"{margin:.2f}%"
     }
 
-def claculate_financial_ratio(numerator: float, denominator: float, ratio_name: str = "Ratio") -> dict:
+def calculate_financial_ratio(numerator: float, denominator: float, ratio_name: str = "Ratio") -> dict:
     """
     Calculates a standard financial ratio (e.g., Debt-to-Equity, Current Ratio):
     Ratio = numerator/denominator
@@ -65,11 +65,31 @@ def claculate_financial_ratio(numerator: float, denominator: float, ratio_name: 
         "ratio_value": round(ratio, 4),
         "formatted": f"{ratio:.2f}x"
     }
+
+def calculate_financial_difference(
+    value_a: float,
+    value_b: float,
+    metric_name: str = "Difference / Gross Profit"
+) -> dict:
+    """
+    Calculates the exact arithmetic difference between two financial values (value_a - value_b).
+    Useful for calculating Gross Profit (Revenue - Cost of Sales) or Net Variance.
+    """
+    diff = round(value_a - value_b, 2)
+    logger.info(f"Tool executed: calculate_financial_difference({value_a} - {value_b} = {diff})")
+    return {
+        "metric_name": metric_name,
+        "value_a": value_a,
+        "value_b": value_b,
+        "difference": diff,
+        "formatted": f"${diff:,.2f} million" if diff > 1000 else f"${diff:,.2f}"
+    }
 # A list of available financial tools
 FINANCIAL_TOOLS = {
     calculate_financial_margin,
     calculate_percentage_growth,
-    claculate_financial_ratio
+    calculate_financial_ratio,
+    calculate_financial_difference
 }
 
 if __name__ == "__main__":

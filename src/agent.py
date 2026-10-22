@@ -5,7 +5,8 @@ from src.vector_store import query_vector_store
 from src.tools import (
     calculate_percentage_growth,
     calculate_financial_margin,
-    claculate_financial_ratio,
+    calculate_financial_ratio,
+    calculate_financial_difference,
 )
 from src.logger import logger
 
@@ -36,7 +37,8 @@ ALL_AGENT_TOOLS = [
     search_financial_document,
     calculate_percentage_growth,
     calculate_financial_margin,
-    claculate_financial_ratio,
+    calculate_financial_ratio,
+    calculate_financial_difference
 ]
 
 def run_financial_agent(
