@@ -1,0 +1,73 @@
+{
+  "timestamp": "2026-10-22 19:24:00",
+  "summary": {
+    "total_test_cases": 5,
+    "evaluated_test_cases": 5,
+    "mean_faithfulness": 1.0,
+    "mean_answer_relevance": 1.0,
+    "mean_context_precision": 1.0,
+    "overall_accuracy": 1.0
+  },
+  "test_results": [
+    {
+      "test_case_id": "TC-01",
+      "category": "Factual Line Item",
+      "question": "What were Apple's Products revenue and Services revenue for the three months ended June 27, 2026?",
+      "faithfulness": 1.0,
+      "faithfulness_reasoning": "Products revenue ($78,678M) and Services revenue ($30,739M) are directly grounded on Page 1.",
+      "answer_relevance": 1.0,
+      "answer_relevance_reasoning": "Directly and completely addresses the prompt.",
+      "context_precision": 1.0,
+      "context_precision_reasoning": "Retrieved chunks contain the exact figures needed.",
+      "status": "PASSED"
+    },
+    {
+      "test_case_id": "TC-02",
+      "category": "Cost of Sales",
+      "question": "What was Apple's total Cost of sales for the three months ended June 27, 2026?",
+      "faithfulness": 1.0,
+      "faithfulness_reasoning": "Total cost of sales ($58,844M) is directly supported by Page 1 statement of operations.",
+      "answer_relevance": 1.0,
+      "answer_relevance_reasoning": "Directly answers the cost of sales inquiry.",
+      "context_precision": 1.0,
+      "context_precision_reasoning": "Retrieved context contains the Cost of sales line items.",
+      "status": "PASSED"
+    },
+    {
+      "test_case_id": "TC-03",
+      "category": "Multi-Period Comparison",
+      "question": "What were Apple's total Net sales for the nine months ended June 27, 2026 compared to June 28, 2025?",
+      "faithfulness": 1.0,
+      "faithfulness_reasoning": "Compares $364,357M (2026) vs $313,695M (2025) accurately from Page 1.",
+      "answer_relevance": 1.0,
+      "answer_relevance_reasoning": "Provides multi-period comparison as requested.",
+      "context_precision": 1.0,
+      "context_precision_reasoning": "Context covers both nine-month period columns.",
+      "status": "PASSED"
+    },
+    {
+      "test_case_id": "TC-04",
+      "category": "Anti-Hallucination Guardrail",
+      "question": "What was Microsoft's Azure cloud revenue in 2026?",
+      "faithfulness": 1.0,
+      "faithfulness_reasoning": "Refused to hallucinate out-of-domain figures, stating the document does not contain this information.",
+      "answer_relevance": 1.0,
+      "answer_relevance_reasoning": "Proper closed-domain refusal.",
+      "context_precision": 1.0,
+      "context_precision_reasoning": "Correctly detected lack of relevant context in filing.",
+      "status": "PASSED"
+    },
+    {
+      "test_case_id": "TC-05",
+      "category": "Unstated Derivative Metric",
+      "question": "What were the profits of Products in Apple for the past three months?",
+      "faithfulness": 1.0,
+      "faithfulness_reasoning": "Accurately noted that gross profit is an unstated line item while citing Net sales and Cost of sales on Page 1.",
+      "answer_relevance": 1.0,
+      "answer_relevance_reasoning": "Directly explains why the direct line item does not exist and gives constituent figures.",
+      "context_precision": 1.0,
+      "context_precision_reasoning": "Retrieved constituent tables with high precision.",
+      "status": "PASSED"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ def format_retrieved_context(retrieved_chunks: list[dict]) -> str:
 def answer_financial_query(
         question: str,
         top_k: int = 2,
-        model_name: str = "gemini-2.5-flash"
+        model_name: str = "gemini-3.5-flash"
 ) -> dict:
     """
     Executes the full RAG pipeline:
@@ -53,18 +53,30 @@ def answer_financial_query(
     # 3. GENERATE
     client = genai.Client(api_key=GEMINI_API_KEY)
 
-    response = client.models.generate_content(
-        model=model_name,
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=0.0, #Deterministic greedy decoding
-        ),
-    )
+    import time
+    response = None
+    for attempt in range(4):
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.0,
+                ),
+            )
+            break
+        except Exception as e:
+            if attempt == 3:
+                raise e
+            wait_s = (attempt + 1) * 6
+            logger.warning(f"RAG transient error ({e}). Retrying in {wait_s}s...")
+            time.sleep(wait_s)
 
     return {
         "question": question,
         "answer": response.text,
+        "context": context_str,
         "sources": [
             {"page": ch["page_number"], "similarity": ch["similarity_score"]}
             for ch in retrieved_chunks
