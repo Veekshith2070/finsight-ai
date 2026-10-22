@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Service 1: FastAPI REST Backend
+  api:
+    build: .
+    container_name: finsight-api
+    command: uvicorn src.api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=sqlite:///./data/finsight.db
+    volumes:
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+    restart: unless-stopped
+
+  # Service 2: Streamlit Financial Research Terminal
+  ui:
+    build: .
+    container_name: finsight-ui
+    command: streamlit run src/ui.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://api:8000
+    depends_on:
+      - api
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
