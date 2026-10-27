@@ -134,12 +134,14 @@ with tab_agent:
                     resp = requests.post(
                         f"{API_BASE_URL}/api/agent",
                         json={"prompt": agent_prompt},
-                        timeout=45
+                        timeout=120
                     )
                     if resp.status_code == 200:
                         agent_res = resp.json()
                         st.markdown("### Agent Synthesis")
                         st.success(agent_res["answer"])
+                    elif resp.status_code == 429:
+                        st.warning("⚠️ **Gemini Free-Tier Rate Limit Reached (5-15 RPM)**: The agent made multiple sequential tool calls and hit the rate limit. Please wait 30 seconds and retry.")
                     else:
                         st.error(f"Agent Error ({resp.status_code}): {resp.text}")
                 except Exception as e:

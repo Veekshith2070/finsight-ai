@@ -168,6 +168,12 @@ def query_agent_endpoint(request: AgentQueryRequest, db: Session = Depends(get_d
         }
     except Exception as e:
         logger.error(f"API execution failed: {e}")
+        err_msg = str(e)
+        if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Gemini API rate limit reached (Free Tier 5-15 RPM). The agent is temporarily waiting for quota replenishment. Please retry in 30-60 seconds."
+            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Agent execution failed: {str(e)}"
