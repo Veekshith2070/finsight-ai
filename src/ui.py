@@ -40,7 +40,7 @@ with st.sidebar:
         with st.spinner("Extracting text, cleaning tables, and generating 3,072-dim embeddings..."):
             files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")}
             try:
-                upload_resp = requests.post(f"{API_BASE_URL}/api/upload", files=files, timeout=60)
+                upload_resp = requests.post(f"{API_BASE_URL}/api/upload", files=files, timeout=600)
                 if upload_resp.status_code == 201:
                     res = upload_resp.json()
                     st.success(f" Indexed {res['filename']} ({res['total_pages']} pages, {res['total_chunks']} chunks)")
@@ -106,7 +106,8 @@ with tab_rag:
 
                         st.markdown("#### Retrieved Source Citations")
                         for idx, src in enumerate(rag_result.get("sources", []), 1):
-                            st.markdown(f"- **Citation #{idx}**: Page `{src['page']}` | Cosine Similarity: `{src['similarity']:.4f}`")
+                            file_label = f" ({src['filename']})" if src.get("filename") else ""
+                            st.markdown(f"- **Citation #{idx}**: Page `{src['page']}`{file_label} | Cosine Similarity: `{src['similarity']:.4f}`")
                     else:
                         st.error(f"Error ({resp.status_code}): {resp.text}")
                 except Exception as e:

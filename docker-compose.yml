@@ -11,6 +11,7 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - DATABASE_URL=sqlite:///./data/finsight.db
     volumes:
+      - ./src:/app/src
       - ./data:/app/data
       - ./chroma_db:/app/chroma_db
     restart: unless-stopped
@@ -27,5 +28,6 @@ services:
     depends_on:
       - api
     volumes:
+      - ./src:/app/src
       - ./data:/app/data
     restart: unless-stopped

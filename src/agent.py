@@ -13,22 +13,22 @@ from src.logger import logger
 # 1. Wrap our RAG engine as an Agent Tool
 def search_financial_document(query: str) -> str:
     """
-    Searches the ingested financial document (Apple 10-Q) for relevant factual context,
-    tables, revenue figures, expenses, and notes.
-
+    Searches the ingested financial documents (e.g., Apple 10-Q, Microsoft 10-K, etc.)
+    for relevant factual context, tables, revenue figures, expenses, and notes.
 
     Args:
         query: The specific topic, keyword, or question to search for in the document.
     """
-    logger.info(f"Agent Tool Innvoked: search_financial_document(query='{query}')")
-    results = query_vector_store(query, top_k=2)
+    logger.info(f"Agent Tool Invoked: search_financial_document(query='{query}')")
+    results = query_vector_store(query, top_k=4)
 
     if not results:
-        return "No relenvnat excerpts found in the document."
+        return "No relevant excerpts found in the documents."
 
     formatted = []
     for r in results:
-        formatted.append(f"[Source: Page {r['page_number']}]\n{r['text']}")
+        file_info = f" ({r['filename']})" if r.get('filename') else ""
+        formatted.append(f"[Source: Page {r['page_number']}{file_info}]\n{r['text']}")
 
     return "\n\n".join(formatted)
 
@@ -43,54 +43,50 @@ ALL_AGENT_TOOLS = [
 
 def run_financial_agent(
         user_prompt: str,
-        model_name: str = "gemini-2.5-flash"
+        model_name: str = "gemini-3.5-flash"
 ) -> str:
     """
     Executes the autonomous agent loop using Gemini 3.5 Flash.
     The agent can dynamically decide to retrieve documents, perform math,
-    or chain both together to answer multi-step questions.
+    or directly answer questions.
     """
-
+    logger.info(f"Agent received user prompt: '{user_prompt}'")
     client = genai.Client(api_key=GEMINI_API_KEY)
 
-    logger.info(f"Agent received user prompt: '{user_prompt}'")
-
     system_instruction = (
-        "You are FinSight AI, an autonomous financial research agent."
-        "You have access to tools for document retrieval and deterministic financial calculations.\n"
-        "Rules:\n"
-        "1. For questions requiring data from the report, use `search_financial_document`.\n"
-        "2. For ANY arithmetic, growth rates, margins, or ratios, you MUST usse the appropriate calculation tool. NEVER calculate math on your head.\n"
-        "3. If a question requires both finding facts and calculating, FIRST search the document, THEN pass the retrieved numbers into the calculation tool.\n"
-        "4. Always cite the page number for any factual data retrieved."
+        "You are FinSight AI's Quantitative Financial Research Agent. "
+        "You have access to tools for searching SEC financial reports and executing deterministic mathematical calculations.\n"
+        "Guidelines:\n"
+        "1. When answering questions about financial figures, ALWAYS use `search_financial_document` to look up accurate data from the filings first.\n"
+        "2. NEVER calculate financial math (growth %, margins, ratios, variances) in your head! ALWAYS call the appropriate calculation tool.\n"
+        "3. Include source page citations (e.g., [Page 1]) in your final response.\n"
+        "4. If a calculation is requested, show the formula, the exact numbers used, and the tool-calculated result.\n"
+        "5. Be concise, objective, and institutional-grade in your final output."
     )
 
-    chat = client.chats.create(
-        model = model_name,
+    response = client.models.generate_content(
+        model=model_name,
+        contents=user_prompt,
         config=types.GenerateContentConfig(
             system_instruction=system_instruction,
-            tools=ALL_AGENT_TOOLS, # Full toolkit enabled
-            temperature=0.0,
+            tools=ALL_AGENT_TOOLS,
+            temperature=0.0
         ),
     )
 
-    response = chat.send_message(user_prompt)
     return response.text
 
 if __name__ == "__main__":
-    print("\n====================================================")
-    print("       FinSight AI - Autonomous Multi-Step Agent      ")
-    print("======================================================\n")
+    print("\n" + "=" * 50)
+    print("      FinSight AI - Autonomous Agent Loop")
+    print("=" * 50)
 
-    # The ultimate multi-step test: Requires RAG + Tool execution chained together!
-    complex_query = (
-        "For the three months ended June 27, 2026, find Apple's Products revenue "
-        "and Services revenue in the report, and calculate what percentage Services is of Products."
+    prompt = (
+        "Calculate the year-over-year percentage growth for Apple's Services revenue "
+        "for the three months ended June 27, 2026 compared to June 28, 2025."
     )
 
-    print(f"User Query: \n'{complex_query}'")
-    print("---Agent Execution Trace ---")
-    final_answer = run_financial_agent(complex_query)
-
-    print("\n--- Final Agent Response ---")
-    print(final_answer)
+    print(f"\nUser Prompt: {prompt}\n")
+    agent_output = run_financial_agent(prompt)
+    print("\n--- Final Agent Report ---")
+    print(agent_output)

@@ -2,6 +2,18 @@ from pathlib import Path
 from pypdf import PdfReader
 from src.logger import logger
 
+# Configure pypdf safety budgets for large SEC financial filings (10-K / 10-Q)
+try:
+    from pypdf import overwrite_configuration
+    overwrite_configuration(
+        array_maximum_element_count=50_000_000,
+        dictionary_maximum_element_count=50_000_000,
+        stream_parsing_work_maximum_count=50_000_000,
+        stream_decoding_work_maximum_length=500_000_000,
+    )
+except ImportError:
+    pass
+
 def extracted_text_from_pdf(pdf_path: str | Path) -> list[dict]:
     """
     Extracts text page-by-page from a PDF file.
@@ -26,7 +38,11 @@ def extracted_text_from_pdf(pdf_path: str | Path) -> list[dict]:
 
     for idx, page in enumerate(reader.pages):
         page_num = idx + 1
-        raw_text = page.extract_text() or ""
+        try:
+            raw_text = page.extract_text() or ""
+        except Exception as e:
+            logger.warning(f"Could not extract text from Page {page_num}: {e}")
+            raw_text = ""
 
         extracted_pages.append({
             "page_number": page_num,
@@ -51,6 +67,3 @@ if __name__ == "__main__":
         # Print first 500 characters of Page 1
         print(pages[0]["text"][:500])
         print("...")
-
-        
-
